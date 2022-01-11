@@ -8,8 +8,24 @@ import "./Multisigwallet.sol";
 contract MultisigwalletTest is DSTest {
     Multisigwallet multisigwallet;
 
-    function setUp() public {
-        multisigwallet = new Multisigwallet();
+    uint8 signersRequired;
+    address[] signers;
+    
+    struct Transaction {
+        address recipient;
+        uint256 valueDue;
+        bytes data;
+        uint8 numSigners;
+        bool completed;
+    }
+
+    Transaction[] public transactionsArray;
+
+    mapping(address => bool) public isSigner;
+
+
+    function setUp(address[] memory _signers, uint8 _signersRequired) public {
+       //multisigwallet = new Multisigwallet([], 1);
     }
 
     function testFail_basic_sanity() public {
@@ -19,4 +35,5 @@ contract MultisigwalletTest is DSTest {
     function test_basic_sanity() public {
         assertTrue(true);
     }
+
 }
