@@ -6,7 +6,7 @@ pragma solidity >=0.8.4 <0.9.0;
  * @dev Admins can add other Admins and Signers and Execute Transactions. Signers can only Submit and Sign Transactions.
  */
 contract MultiSigWallet {
-    uint8 signaturesRequired;
+    uint8 public signaturesRequired;
 
     address[] signers;
 
@@ -61,8 +61,9 @@ contract MultiSigWallet {
     /**
      * @dev Can pass any address to be admin, not just msg.sender
      */
-    constructor(address _admin) {
+    constructor(address _admin, uint8 _signaturesRequired) {
         isAdmin[_admin] = true;
+        signaturesRequired = _signaturesRequired;
         emit WalletSetup(_admin);
     }
 
@@ -167,10 +168,7 @@ contract MultiSigWallet {
     /**
      * @dev The admin can change the number of signatures required to execute a transaction
      */
-    function signaturesRequiredForTx(uint8 _signaturesRequired)
-        public
-        onlyAdmin
-    {
+    function addSignaturesRequired(uint8 _signaturesRequired) public onlyAdmin {
         require(
             _signaturesRequired > 0 && _signaturesRequired <= 256,
             "Setup: No. of signers required is incorrect"
