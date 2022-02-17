@@ -10,8 +10,6 @@ contract MultiSigWallet {
 
     address[] signers;
 
-    address[] admins;
-
     struct Transaction {
         address recipient;
         uint256 valueDue;
@@ -45,7 +43,6 @@ contract MultiSigWallet {
         uint8 signersRequired
     );
     event SetupSignersArray(address indexed sender, address[] signers);
-    event SetupAdminsArray(address indexed sender, address[] admins);
 
     //=======MODIFIERS=======//
 
@@ -55,13 +52,15 @@ contract MultiSigWallet {
     }
 
     modifier onlyAdmin() {
-        // require(isAdmin[_signerLevel][msg.sender], "Not an Admin");
         require(isAdmin[msg.sender], "Not an admin");
         _;
     }
 
     //=======CONSTRUCTOR=======//
 
+    /**
+     * @dev Can pass any address to be admin, not just msg.sender
+     */
     constructor(address _admin) {
         isAdmin[_admin] = true;
         emit WalletSetup(_admin);
@@ -234,54 +233,14 @@ contract MultiSigWallet {
     }
 
     /**
-     * @dev The admin can setup an array of multisig admins
-     */
-    function setupAdminArray(address[] memory _admins) public onlyAdmin {
-        require(
-            _admins.length > 0 && _admins.length <= 256,
-            "Setup: No. admins incorect"
-        );
-
-        for (uint8 i; i < _admins.length; i++) {
-            address newAdmin = _admins[i];
-
-            if (newAdmin == address(0)) {
-                revert("Setup: Don't use address(0)");
-            } else if (isAdmin[newAdmin]) {
-                revert("Setup: Already a signer");
-            } else {
-                admins.push(newAdmin);
-                isAdmin[newAdmin] = true;
-            }
-        }
-
-        emit SetupAdminsArray(msg.sender, _admins);
-    }
-
-    /**
      * @dev The admin can add admins to the wallet
      */
-    function addAdminToArray(address _newAdmin) public onlyAdmin {
+    function addAdmin(address _newAdmin) public onlyAdmin {
         require(
             !isAdmin[_newAdmin] && _newAdmin != address(0),
             "Cannot add admin"
         );
-
-        admins.push(_newAdmin);
         isAdmin[_newAdmin] = true;
-    }
-
-    /**
-     * @dev The admin can remove admins from the array
-     */
-    function removeAdmin(address _badAdmin) public onlyAdmin {
-        require(isAdmin[_badAdmin], "Not an admin");
-
-        //cast address to uint so delete can be used
-        uint256 badAdminId = uint256(uint160(_badAdmin));
-
-        //does not change arr length, resets arr value to default value
-        delete admins[badAdminId];
     }
 
     //=======VIEW FUNCTIONS=======//
@@ -291,12 +250,5 @@ contract MultiSigWallet {
      */
     function getSignersArray() public view returns (address[] memory) {
         return signers;
-    }
-
-    /**
-     * @dev Returns the array of multisig admins
-     */
-    function getAdminsArray() public view returns (address[] memory) {
-        return admins;
     }
 }
