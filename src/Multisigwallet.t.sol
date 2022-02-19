@@ -6,6 +6,7 @@ import "./MultiSigWallet.sol";
 
 contract MultisigwalletTest is DSTest {
     MultiSigWallet public multisigwallet;
+
     uint8 signaturesRequired;
     address isAdmin;
 
@@ -16,6 +17,8 @@ contract MultisigwalletTest is DSTest {
         );
     }
 
+    //=======UNIT TESTING=======//
+
     function test_signatures_required() public view returns (bool) {
         if (signaturesRequired == 1) {
             return true;
@@ -23,12 +26,35 @@ contract MultisigwalletTest is DSTest {
         return false;
     }
 
-    //symbolic test prove_
-    function testFail_basic_sanity() public {
-        assertTrue(false);
+    function test_receive() public {
+        uint256 preBalance = address(multisigwallet).balance;
+        payable(address(multisigwallet)).transfer(1 ether);
+        uint256 postBalance = address(multisigwallet).balance;
+        assertEq(preBalance + 1 ether, postBalance);
     }
 
-    function test_basic_sanity() public {
-        assertTrue(true);
+    function testFail_receive() public {
+        uint256 preBalance = address(multisigwallet).balance;
+        payable(address(multisigwallet)).transfer(1 ether);
+        uint256 postBalance = address(multisigwallet).balance;
+        assertEq(preBalance, postBalance);
     }
+
+    // function test_addSignaturesrRequired() public {
+    //     if (signaturesRequired > 0 && signaturesRequired <= 256) {
+    //         assertTrue(true);
+    //     }
+    // }
+
+    //=======PROPERTY-BASED TESTING=======//
+
+    function test_addSignaturesrRequired(uint8 _signaturesRequired) public {
+        if (_signaturesRequired > 0 && _signaturesRequired <= 256) {
+            assertTrue(true);
+        }
+    }
+
+    //=======SYMBOLIC TESTING=======//
+
+    //=======INVARIANT TESTING=======//
 }
