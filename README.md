@@ -1,8 +1,12 @@
 # Multi Signature Wallet
 
-This is a work in progress...
+Test are a work in progress...
 
-This is a MultiSigWallet that has both admins and signers for transactions.
+This MultiSigWallet has two access levels: admins and signers.
+
+Admins can add more signers, admins, and exscute transactions.
+
+Signers can only submit and sign transactions.
 
 Built with [dapp.tools](https://dapp.tools/).
 
