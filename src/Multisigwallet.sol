@@ -27,7 +27,7 @@ contract MultiSigWallet {
 
     //=======EVENTS=======//
 
-    event WalletSetup(address indexed sender);
+    event WalletSetup(address indexed sender, uint256 value);
     event ReceivedDeposit(address indexed sender, uint256 value);
     event Submission(
         address indexed sender,
@@ -64,7 +64,7 @@ contract MultiSigWallet {
     constructor(address _admin, uint8 _signaturesRequired) {
         isAdmin[_admin] = true;
         signaturesRequired = _signaturesRequired;
-        emit WalletSetup(_admin);
+        emit WalletSetup(_admin, _signaturesRequired);
     }
 
     //=======FALLBACK FUNCTION=======//
