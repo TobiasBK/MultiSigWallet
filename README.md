@@ -4,7 +4,7 @@ Test are a work in progress...
 
 This MultiSigWallet has two access levels: admins and signers.
 
-Admins can add more signers, admins, and exscute transactions.
+Admins can add more signers, admins, and execute transactions.
 
 Signers can only submit and sign transactions.
 
