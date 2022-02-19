@@ -1,33 +1,29 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.6;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.4 <0.9.0;
 
 import "ds-test/test.sol";
-
-import "./Multisigwallet.sol";
+import "./MultiSigWallet.sol";
 
 contract MultisigwalletTest is DSTest {
-    Multisigwallet multisigwallet;
+    MultiSigWallet public multisigwallet;
+    uint8 signaturesRequired;
+    address isAdmin;
 
-    uint8 signersRequired;
-    address[] signers;
-    
-    struct Transaction {
-        address recipient;
-        uint256 valueDue;
-        bytes data;
-        uint8 numSigners;
-        bool completed;
+    function setUp() public {
+        multisigwallet = new MultiSigWallet(
+            isAdmin = 0xe42CF2EaCEa0E6fdD8245a4eF7b593a3AE24b741,
+            signaturesRequired = 1
+        );
     }
 
-    Transaction[] public transactionsArray;
-
-    mapping(address => bool) public isSigner;
-
-
-    function setUp(address[] memory _signers, uint8 _signersRequired) public {
-       //multisigwallet = new Multisigwallet([], 1);
+    function test_signatures_required() public view returns (bool) {
+        if (signaturesRequired == 1) {
+            return true;
+        }
+        return false;
     }
 
+    //symbolic test prove_
     function testFail_basic_sanity() public {
         assertTrue(false);
     }
@@ -35,5 +31,4 @@ contract MultisigwalletTest is DSTest {
     function test_basic_sanity() public {
         assertTrue(true);
     }
-
 }
