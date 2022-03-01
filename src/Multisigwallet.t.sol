@@ -36,25 +36,25 @@ contract MultisigwalletTest is DSTest {
 
     //=======TESTING ACCESS=======//
 
-    // function test_addAdmin() public {
-    //     try alice.addAdmin(address(alice)) {
-    //         fail();
-    //     } catch Error(string memory error) {
-    //         assertEq(error, "alice is not an admin");
-    //     }
-    // }
+    function test_addAdmin(address _alice) public {
+        try alice.addAdmin(_alice) {
+            emit log("alice is admin");
+        } catch {
+            emit log("alice failed");
+        }
+    }
+
+    function test_addSigner(address _bob) public {
+        try bob.addSignerToArray(_bob) {
+            emit log("bob is admin");
+        } catch {
+            emit log("bob failed");
+        }
+    }
 
     function testFail_addAdmin() public {
         alice.addAdmin(address(alice));
     }
-
-    // function test_addSigner() public {
-    //     try bob.addSignerToArray(address(bob)) {
-    //         fail();
-    //     } catch Error(string memory error) {
-    //         assertEq(error, "bob is not an admin");
-    //     }
-    // }
 
     function testFail_addSigner() public {
         bob.addSignerToArray(address(bob));
@@ -83,11 +83,11 @@ contract MultisigwalletTest is DSTest {
         assertEq(preBalance, postBalance);
     }
 
-    // function test_addSignaturesrRequired() public {
-    //     if (signaturesRequired > 0 && signaturesRequired <= 256) {
-    //         assertTrue(true);
-    //     }
-    // }
+    function test_addSignaturesrRequired() public {
+        if (signaturesRequired > 0 && signaturesRequired <= 256) {
+            assertTrue(true);
+        }
+    }
 
     //=======PROPERTY-BASED TESTING=======//
 
