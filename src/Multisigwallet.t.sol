@@ -83,11 +83,11 @@ contract MultisigwalletTest is DSTest {
         assertEq(preBalance, postBalance);
     }
 
-    // function test_addSignaturesrRequired() public {
-    //     if (signaturesRequired > 0 && signaturesRequired <= 256) {
-    //         assertTrue(true);
-    //     }
-    // }
+    function test_addSignaturesrRequired() public {
+        if (signaturesRequired > 0 && signaturesRequired <= 256) {
+            assertTrue(true);
+        }
+    }
 
     //=======PROPERTY-BASED TESTING=======//
 
