@@ -85,7 +85,7 @@ contract MultiSigWallet {
         address _to,
         uint256 _valueDue,
         bytes memory _data
-    ) public onlySigners onlyAdmin {
+    ) external onlySigners onlyAdmin {
         uint256 transactionId = transactionsArray.length;
 
         transactionsArray.push(
@@ -105,7 +105,7 @@ contract MultiSigWallet {
      * @dev Sign a transaction that has been submitted for consideration
      */
     function signTransaction(uint256 _transactionId)
-        public
+        external
         onlySigners
         onlyAdmin
     {
@@ -120,7 +120,7 @@ contract MultiSigWallet {
      * @dev Get information about a transaction
      */
     function getTransaction(uint256 _transactionId)
-        public
+        external
         view
         onlySigners
         returns (
@@ -147,7 +147,7 @@ contract MultiSigWallet {
     /**
      * @dev Execute a transaction that has enough signatures.
      */
-    function executeTransaction(uint256 _transactionId) public onlyAdmin {
+    function executeTransaction(uint256 _transactionId) external onlyAdmin {
         Transaction storage transaction = transactionsArray[_transactionId];
 
         require(
@@ -168,7 +168,10 @@ contract MultiSigWallet {
     /**
      * @dev The admin can change the number of signatures required to execute a transaction
      */
-    function addSignaturesRequired(uint8 _signaturesRequired) public onlyAdmin {
+    function addSignaturesRequired(uint8 _signaturesRequired)
+        external
+        onlyAdmin
+    {
         require(
             _signaturesRequired > 0 && _signaturesRequired <= 256,
             "Setup: No. of signers required is incorrect"
@@ -182,7 +185,7 @@ contract MultiSigWallet {
     /**
      * @dev The admin can setup an array of multisig signers
      */
-    function setupSignersArray(address[] memory _signers) public onlyAdmin {
+    function setupSignersArray(address[] memory _signers) external onlyAdmin {
         require(
             _signers.length > 0 && _signers.length <= 256,
             "Setup: No. signers incorect"
@@ -207,7 +210,7 @@ contract MultiSigWallet {
     /**
      * @dev The admin can add signers to the multisig
      */
-    function addSignerToArray(address _newSigner) public onlyAdmin {
+    function addSignerToArray(address _newSigner) external onlyAdmin {
         require(
             !isSigner[_newSigner] && _newSigner != address(0),
             "Cannot add signer"
@@ -220,7 +223,7 @@ contract MultiSigWallet {
     /**
      * @dev The admin can remove signers from the array and, thus, the multisig
      */
-    function removeSigner(address _badSigner) public onlyAdmin {
+    function removeSigner(address _badSigner) external onlyAdmin {
         require(isSigner[_badSigner], "Not a signer");
 
         //cast address to uint so delete can be used
@@ -233,7 +236,7 @@ contract MultiSigWallet {
     /**
      * @dev The admin can add admins to the wallet
      */
-    function addAdmin(address _newAdmin) public onlyAdmin {
+    function addAdmin(address _newAdmin) external onlyAdmin {
         require(
             !isAdmin[_newAdmin] && _newAdmin != address(0),
             "Cannot add admin"
@@ -246,7 +249,7 @@ contract MultiSigWallet {
     /**
      * @dev Returns the array of multisig signers
      */
-    function getSignersArray() public view returns (address[] memory) {
+    function getSignersArray() external view returns (address[] memory) {
         return signers;
     }
 }
