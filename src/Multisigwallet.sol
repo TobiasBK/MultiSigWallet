@@ -59,10 +59,15 @@ contract MultiSigWallet {
     //=======CONSTRUCTOR=======//
 
     /**
-     * @dev Can pass any address to be admin, not just msg.sender
+     * @dev Can pass any address to be admin and signer, not just msg.sender
      */
-    constructor(address _admin, uint8 _signaturesRequired) {
+    constructor(
+        address _admin,
+        address _signer,
+        uint8 _signaturesRequired
+    ) {
         isAdmin[_admin] = true;
+        isSigner[_signer] = true;
         signaturesRequired = _signaturesRequired;
         emit WalletSetup(_admin, _signaturesRequired);
     }
@@ -85,7 +90,7 @@ contract MultiSigWallet {
         address _to,
         uint256 _valueDue,
         bytes memory _data
-    ) external onlySigners onlyAdmin {
+    ) external onlySigners {
         uint256 transactionId = transactionsArray.length;
 
         transactionsArray.push(
@@ -104,42 +109,12 @@ contract MultiSigWallet {
     /**
      * @dev Sign a transaction that has been submitted for consideration
      */
-    function signTransaction(uint256 _transactionId)
-        external
-        onlySigners
-        onlyAdmin
-    {
+    function signTransaction(uint256 _transactionId) external onlySigners {
         Transaction storage transaction = transactionsArray[_transactionId];
         transaction.signaturesCollected += 1;
         txSigned[_transactionId][msg.sender] = true;
 
         emit SignedTransaction(msg.sender, _transactionId);
-    }
-
-    /**
-     * @dev Get information about a transaction
-     */
-    function getTransaction(uint256 _transactionId)
-        external
-        view
-        onlySigners
-        returns (
-            address _recipient,
-            uint256 _valueDue,
-            bytes memory _data,
-            uint256 _numSigners,
-            bool _completed
-        )
-    {
-        Transaction storage transaction = transactionsArray[_transactionId];
-
-        return (
-            transaction.recipient,
-            transaction.valueDue,
-            transaction.data,
-            transaction.signaturesCollected,
-            transaction.completed
-        );
     }
 
     //=======ONLY ADMIN FUNCTIONS=======//
@@ -173,7 +148,7 @@ contract MultiSigWallet {
         onlyAdmin
     {
         require(
-            _signaturesRequired > 0 && _signaturesRequired <= 256,
+            _signaturesRequired > 0 && _signaturesRequired < 256,
             "Setup: No. of signers required is incorrect"
         );
 
@@ -187,7 +162,7 @@ contract MultiSigWallet {
      */
     function setupSignersArray(address[] memory _signers) external onlyAdmin {
         require(
-            _signers.length > 0 && _signers.length <= 256,
+            _signers.length > 0 && _signers.length < 256,
             "Setup: No. signers incorect"
         );
 
@@ -247,9 +222,41 @@ contract MultiSigWallet {
     //=======VIEW FUNCTIONS=======//
 
     /**
+     * @dev Get information about a transaction
+     */
+    function getTransaction(uint256 _transactionId)
+        external
+        view
+        returns (
+            address _recipient,
+            uint256 _valueDue,
+            bytes memory _data,
+            uint256 _numSigners,
+            bool _completed
+        )
+    {
+        Transaction storage transaction = transactionsArray[_transactionId];
+
+        return (
+            transaction.recipient,
+            transaction.valueDue,
+            transaction.data,
+            transaction.signaturesCollected,
+            transaction.completed
+        );
+    }
+
+    /**
      * @dev Returns the array of multisig signers
      */
     function getSignersArray() external view returns (address[] memory) {
         return signers;
+    }
+
+    /**
+     * @dev Returns the number of signatures needed to comfirm tx
+     */
+    function getSignaturesRequired() external view returns (uint256) {
+        return signaturesRequired;
     }
 }
