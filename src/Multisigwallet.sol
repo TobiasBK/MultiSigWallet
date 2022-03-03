@@ -43,6 +43,8 @@ contract MultiSigWallet {
         uint8 signersRequired
     );
     event SetupSignersArray(address indexed sender, address[] signers);
+    event SignerRemoved(address sender, address indexed removedSigner);
+    event NewAdmin(address sender, address indexed newAdmin);
 
     //=======MODIFIERS=======//
 
@@ -206,6 +208,8 @@ contract MultiSigWallet {
 
         //does not change arr length, resets arr value to default value
         delete signers[badSignerId];
+
+        emit SignerRemoved(msg.sender, _badSigner);
     }
 
     /**
@@ -217,6 +221,8 @@ contract MultiSigWallet {
             "Cannot add admin"
         );
         isAdmin[_newAdmin] = true;
+
+        emit NewAdmin(msg.sender, _newAdmin);
     }
 
     //=======VIEW FUNCTIONS=======//
