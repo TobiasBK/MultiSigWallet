@@ -24,8 +24,10 @@ contract MultisigwalletTest is DSTest {
     MultiSigWallet public msw;
     NotAdmin public alice;
     NotSigner public bob;
+
     address signer;
     address admin;
+    address eve;
 
     function setUp() public {
         msw = new MultiSigWallet(address(this), address(signer), 1);
@@ -91,7 +93,7 @@ contract MultisigwalletTest is DSTest {
         uint128 _valueDue,
         bytes memory _data
     ) public {
-        msw = new MultiSigWallet(address(admin), address(this), 1);
+        //msw = new MultiSigWallet(address(admin), address(this), 1);
         address to = _to;
         uint128 valueDue = _valueDue;
         bytes memory data = _data;
@@ -103,22 +105,29 @@ contract MultisigwalletTest is DSTest {
         uint128 _valueDue,
         bytes memory _data
     ) public {
-        msw = new MultiSigWallet(address(this), address(signer), 1);
+        //msw = new MultiSigWallet(address(this), address(signer), 1);
         address to = _to;
         uint128 valueDue = _valueDue;
         bytes memory data = _data;
         msw.submitTransaction(to, valueDue, data);
     }
 
-    //  function test_signTransaction() public {
-    //     msw = new MultiSigWallet(address(this), address(signer), 1);
-    //     msw.signTransaction(_transactionId);
-    // }
+    function test_signerProcess() public {
+        msw = new MultiSigWallet(address(admin), address(this), 1);
+        msw.submitTransaction(eve, 1, "0x0");
+        msw.signTransaction(0);
+    }
 
-    // function test_executeTransaction() public {
-    //     msw = new MultiSigWallet(address(this), address(signer), 1);
-    //     msw.executeTransaction(_transactionId);
-    // }
+    function testFail_signerProcess() public {
+        msw = new MultiSigWallet(address(admin), address(this), 1);
+        msw.submitTransaction(eve, 1, "0x0");
+        msw.signTransaction(0);
+        msw.executeTransaction(0); //not a admin, should fail
+    }
+
+    function testFail_adminProcess() public {
+        msw.submitTransaction(eve, 1, "0x0"); //admin can't submit tx, should fail
+    }
 
     //=======SYMBOLIC TESTING=======//
 
