@@ -8,7 +8,7 @@ pragma solidity >=0.8.4 <0.9.0;
 contract MultiSigWallet {
     uint8 public signaturesRequired;
 
-    address[] signers;
+    address[] public signers;
 
     struct Transaction {
         address recipient;
