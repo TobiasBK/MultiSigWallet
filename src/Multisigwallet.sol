@@ -48,8 +48,11 @@ contract MultiSigWallet {
 
     //=======MODIFIERS=======//
 
-    modifier onlySigners() {
-        require(isSigner[msg.sender], "Not a signer");
+    modifier onlySignersOrAdmin() {
+        require(
+            isSigner[msg.sender] || isAdmin[msg.sender],
+            "Not a signer or admin"
+        );
         _;
     }
 
@@ -83,7 +86,7 @@ contract MultiSigWallet {
         emit ReceivedDeposit(msg.sender, msg.value);
     }
 
-    //=======TRANSACTION FUNCTIONs=======//
+    //=======SUBMIT & SING TRANSACTION FUNCTIONS=======//
 
     /**
      * @dev Submit a transaction to the wallet for consideration
@@ -92,7 +95,7 @@ contract MultiSigWallet {
         address _to,
         uint256 _valueDue,
         bytes memory _data
-    ) external onlySigners {
+    ) external onlySignersOrAdmin {
         uint256 transactionId = transactionsArray.length;
 
         transactionsArray.push(
@@ -111,7 +114,10 @@ contract MultiSigWallet {
     /**
      * @dev Sign a transaction that has been submitted for consideration
      */
-    function signTransaction(uint256 _transactionId) external onlySigners {
+    function signTransaction(uint256 _transactionId)
+        external
+        onlySignersOrAdmin
+    {
         Transaction storage transaction = transactionsArray[_transactionId];
         transaction.signaturesCollected += 1;
         txSigned[_transactionId][msg.sender] = true;
