@@ -10,6 +10,10 @@ contract NotAdmin {
     function addAdmin(address _admin) external {
         multisigwallet.addAdmin(_admin);
     }
+
+    function executeTransaction() external {
+        multisigwallet.executeTransaction(0);
+    }
 }
 
 contract NotSigner {
@@ -18,6 +22,17 @@ contract NotSigner {
     function addSignerToArray(address _signer) external {
         multisigwallet.addSignerToArray(_signer);
     }
+
+    function submitTransaction(
+        address _to,
+        uint128 _valueDue,
+        bytes memory _data
+    ) external {
+        address to = _to;
+        uint128 valueDue = _valueDue;
+        bytes memory data = _data;
+        multisigwallet.submitTransaction(to, valueDue, data);
+    }
 }
 
 contract MultisigwalletTest is DSTest {
@@ -25,27 +40,19 @@ contract MultisigwalletTest is DSTest {
     NotAdmin public alice;
     NotSigner public bob;
 
-    address signer;
-    address admin;
-    address eve;
+    address public signer;
+    address public admin;
+    address public eve = address(0xe);
 
-    uint8 private signaturesRequired = 1;
-
-    struct Transaction {
-        address recipient;
-        uint256 valueDue;
-        bytes data;
-        uint8 signaturesCollected;
-        bool completed;
-    }
-
-    Transaction[] public transactionsArray;
+    //=======SETUP TESTS=======//
 
     function setUp() public {
         msw = new MultiSigWallet(address(this), address(signer), 1);
         alice = new NotAdmin();
         bob = new NotSigner();
     }
+
+    receive() external payable {}
 
     //=======ACCESS TESTS=======//
 
@@ -75,7 +82,7 @@ contract MultisigwalletTest is DSTest {
         assertEq(address(bob), address(signer));
     }
 
-    function test_adminCannotSubmitTx() public {
+    function test_adminCanSubmitTransaction() public {
         try msw.submitTransaction(eve, 1, "0x0") {
             emit log("Submitted tx");
         } catch {
@@ -118,13 +125,14 @@ contract MultisigwalletTest is DSTest {
     }
 
     function testFail_addSignaturesrRequired() public {
+        uint8 signaturesRequired = 1;
         msw.addSignaturesRequired(0);
         assertEq(0, signaturesRequired);
     }
 
     //=======SUBMIT TX TESTS=======//
 
-    function test_submitTransaction(
+    function test_signerSubmitTransaction(
         address _to,
         uint128 _valueDue,
         bytes memory _data
@@ -136,23 +144,40 @@ contract MultisigwalletTest is DSTest {
         msw.submitTransaction(to, valueDue, data);
     }
 
-    function testFail_submitTransaction(
+    function testFail_nonSignerSubmitTransaction(
         address _to,
         uint128 _valueDue,
         bytes memory _data
     ) public {
-        //msw = new MultiSigWallet(address(this), address(signer), 1);
         address to = _to;
         uint128 valueDue = _valueDue;
         bytes memory data = _data;
-        msw.submitTransaction(to, valueDue, data);
+        bob.submitTransaction(to, valueDue, data);
     }
 
-    //=======SIGNER SUBMIT AND SIGN TX TESTS=======//
+    //=======SIGNER TX PROCESS TESTS=======//
 
     function test_signerProcess() public {
         msw = new MultiSigWallet(address(admin), address(this), 1);
         msw.submitTransaction(eve, 1, "0x0");
         msw.signTransaction(0);
+    }
+
+    //=======ADMIN TX PROCESS TESTS=======//
+
+    function test_adminProcess() public {
+        payable(address(msw)).transfer(1 ether);
+        //mockTransaction(not needed now):
+        //Transaction[] memory transactionsArray = new Transaction[](1);
+        // transactionsArray[0] = Transaction({
+        //     recipient: address(0xe),
+        //     valueDue: 1 ether,
+        //     data: "",
+        //     signaturesCollected: 1,
+        //     completed: false
+        // });
+        msw.submitTransaction(eve, 1, "0x0");
+        msw.signTransaction(0);
+        msw.executeTransaction(0);
     }
 }
