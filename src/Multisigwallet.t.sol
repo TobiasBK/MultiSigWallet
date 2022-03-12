@@ -44,6 +44,8 @@ contract MultisigwalletTest is DSTest {
     address public admin;
     address public eve = address(0xe);
 
+    address[] public signers = [address(0x1), address(0x2)];
+
     //=======SETUP TESTS=======//
 
     function setUp() public {
@@ -179,5 +181,32 @@ contract MultisigwalletTest is DSTest {
         msw.submitTransaction(eve, 1, "0x0");
         msw.signTransaction(0);
         msw.executeTransaction(0);
+    }
+
+    //=======ARRAY TESTS=======//
+
+    function test_setupSignersArray() public {
+        try msw.setupSignersArray(signers) {
+            emit log("Added Signer");
+        } catch {
+            emit log("Failed to add signer");
+        }
+    }
+
+    function test_addSignerToArray() public {
+        uint256 signersLength = signers.length;
+        uint256 newSignersLength = signers.length + 1;
+        try msw.setupSignersArray(signers) {
+            signersLength;
+        } catch {
+            emit log("Failed to steup");
+        }
+        try msw.addSignerToArray(address(0x3)) {
+            newSignersLength;
+        } catch {
+            emit log("Failed to add new signer");
+        }
+
+        assertEq(signersLength + 1, newSignersLength);
     }
 }
